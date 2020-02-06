@@ -41,14 +41,14 @@ private:
     //Asynchronously writes data to socket_
     void Write();
     //Write handler - Calls Read() after Write() finished writing to socket_
-    void HandleWrite(const asio::error_code&, std::size_t);
+    void HandleWrite(const asio::error_code& error, std::size_t bytes_transferred);
     //Asynchronously reads data from socket_
     void Read();
     //Read handler - Calls Read() after Write() finished writing to socket_
     void HandleRead(const asio::error_code& error, std::size_t bytes_transferred);
 
     //
-    std::string ProcessRequest(std::string request);
+    std::string ProcessRequest(unsigned int service_index);
     //Constructs formatted date and time string from system time
     std::string MakeDayTimeString();
 };

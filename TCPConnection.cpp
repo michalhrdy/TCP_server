@@ -45,8 +45,10 @@ void TCPConnection::Write() {
                                  std::placeholders::_2));
 }
 
-void TCPConnection::HandleWrite(const asio::error_code&, std::size_t) {
-    Read();
+void TCPConnection::HandleWrite(const asio::error_code& error, std::size_t bytes_transferred) {
+    if(!error){
+        Read();
+    }
 }
 
 void TCPConnection::Read() {
@@ -68,16 +70,16 @@ void TCPConnection::HandleRead( const asio::error_code& error, std::size_t bytes
         //Remove delimiter
         s.erase(s.size() - 1);
 
-        bool processed = false;
-        for(auto it = services.begin(); it != services.end(); ++it) {
+        unsigned int s_index = false;
+        for(auto it = service_table.begin(); it != service_table.end(); ++it) {
             if(s == it->first) {
                 std::cout << "Request: " << it->second << std::endl;
-                message_to_send_ = ProcessRequest(s);
-                processed = true;
+                message_to_send_ = ProcessRequest(s_index);
                 break;
             }
+            ++s_index;
         }
-        if(!processed) {
+        if(s_index > service_table.size()) {
             std::cout << "Unknown command" << std::endl;
             std::cout << "Closing connection" << std::endl;
             return;
@@ -96,14 +98,15 @@ void TCPConnection::HandleRead( const asio::error_code& error, std::size_t bytes
     Write();
 }
 
-std::string TCPConnection::ProcessRequest(std::string request) {
+std::string TCPConnection::ProcessRequest(unsigned int service_index) {
 
-    return MakeDayTimeString();
+    return service_lambdas[service_index]() + CParams.message_delimiter;
 }
 
 
 std::string TCPConnection::MakeDayTimeString() {
-    using namespace std; // For time_t, time and ctime;
-    time_t now = time(0);
-    return ctime(&now);
+    std::time_t now = std::time(0);
+    std::string formatted = std::ctime(&now);
+    formatted.erase(formatted.size() - 1);
+    return formatted;
 }
