@@ -37,7 +37,6 @@ void TCPConnection::Write() {
 //            [this](const asio::error_code&, std::size_t) {
 //        Read();
 //    });
-
     asio::async_write(socket_, asio::buffer(message_to_send_),
                       std::bind(&TCPConnection::HandleWrite,
                                 shared_from_this(),
@@ -79,8 +78,7 @@ void TCPConnection::HandleRead( const asio::error_code& error, std::size_t bytes
             }
             ++s_index;
         }
-        if(s_index > service_table.size()) {
-            std::cout << "Unknown command" << std::endl;
+        if(s_index > service_table.size() || message_to_send_.compare("Quit\n")) {
             std::cout << "Closing connection" << std::endl;
             return;
         }
