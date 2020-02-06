@@ -47,6 +47,8 @@ private:
     //Read handler - Calls Read() after Write() finished writing to socket_
     void HandleRead(const asio::error_code& error, std::size_t bytes_transferred);
 
+    //
+    std::string ProcessRequest(std::string request);
     //Constructs formatted date and time string from system time
     std::string MakeDayTimeString();
 };

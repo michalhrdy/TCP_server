@@ -22,7 +22,8 @@ tcp::socket& TCPConnection::Socket() {
 }
 
 void TCPConnection::Start() {
-    message_to_send_ = "Connected" + CParams.message_delimiter;
+    std::string c = "Connected";
+    message_to_send_ = c + CParams.message_delimiter;
     Write();
 }
 
@@ -58,24 +59,48 @@ void TCPConnection::Read() {
 }
 
 void TCPConnection::HandleRead( const asio::error_code& error, std::size_t bytes_transferred) {
-
-    std::string s( (std::istreambuf_iterator<char>(&recieved_message_buffer_)),
-                   std::istreambuf_iterator<char>() );
-
-    std::cout << "Request: " << s << std::flush;
-    std::cout << error.message() << std::endl;
-
-    if(!s.compare("DayTime" + CParams.message_delimiter)){
-        message_to_send_ = MakeDayTimeString() + CParams.message_delimiter;
-    }else if(!s.compare("Message" + CParams.message_delimiter)){
-        message_to_send_ = "Hello from server" + CParams.message_delimiter;
-    }else{
-        std::cout << "Closing connection" << std::endl;
+    if(error) {
+        std::cout << error.message() << std::endl;
         return;
+    } else {
+        std::string s( (std::istreambuf_iterator<char>(&recieved_message_buffer_)),
+                       std::istreambuf_iterator<char>() );
+        //Remove delimiter
+        s.erase(s.size() - 1);
+
+        bool processed = false;
+        for(auto it = services.begin(); it != services.end(); ++it) {
+            if(s == it->first) {
+                std::cout << "Request: " << it->second << std::endl;
+                message_to_send_ = ProcessRequest(s);
+                processed = true;
+                break;
+            }
+        }
+        if(!processed) {
+            std::cout << "Unknown command" << std::endl;
+            std::cout << "Closing connection" << std::endl;
+            return;
+        }
     }
+
+//    if(!s.compare("DayTime" + CParams.message_delimiter)){
+//        message_to_send_ = MakeDayTimeString() + CParams.message_delimiter;
+//    }else if(!s.compare("Message" + CParams.message_delimiter)){
+//        message_to_send_ = "Hello from server" + CParams.message_delimiter;
+//    }else{
+//        std::cout << "Closing connection" << std::endl;
+//        return;
+//    }
 
     Write();
 }
+
+std::string TCPConnection::ProcessRequest(std::string request) {
+
+    return MakeDayTimeString();
+}
+
 
 std::string TCPConnection::MakeDayTimeString() {
     using namespace std; // For time_t, time and ctime;
