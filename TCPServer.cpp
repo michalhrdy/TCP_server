@@ -5,24 +5,27 @@
 #include "TCPConnection.h"
 
 TCPServer::TCPServer(asio::io_context& io_context):
-                        acceptor_(io_context, tcp::endpoint(tcp::v4(), std::stoi(CParams.service))) {
+                        acceptor_(io_context, tcp::endpoint(tcp::v4(), std::stoi(CParams::service))) {
     StartAccept();
 }
 
 
 void TCPServer::StartAccept() {
-    TCPConnection::pointer new_connection =
-            TCPConnection::Create(acceptor_.get_executor().context());
+//    TCPConnection::pointer new_connection =
+//            TCPConnection::Create(acceptor_.get_executor().context());
 
-    acceptor_.async_accept(new_connection->Socket(),
-                           std::bind(&TCPServer::HandleAccept, this, new_connection,
+
+    connections_.push_back(
+            std::make_unique<TCPConnection>(acceptor_.get_executor().context()));
+
+    acceptor_.async_accept(connections_.back()->Socket(),
+                           std::bind(&TCPServer::HandleAccept, this,
                                      std::placeholders::_1));
 }
 
-void TCPServer::HandleAccept(TCPConnection::pointer new_connection,
-                  const asio::error_code& error) {
+void TCPServer::HandleAccept(const asio::error_code& error) {
     if (!error) {
-        new_connection->Start();
+        connections_.back().get()->Start();
         std::cout << "New Connection Established" << std::endl;
     }
 

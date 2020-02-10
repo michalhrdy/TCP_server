@@ -25,13 +25,11 @@ public:
 
 private:
     tcp::acceptor acceptor_;
-    //???
-    //std::vector<std::weak_ptr<TCPConnection>>;
-    //Starts accepting of new connections, Creates new instances of TCPConnection class
+
+    std::vector<std::unique_ptr<TCPConnection>> connections_;
     void StartAccept();
     //Starts work on newly created connection and calls StartAccept()
-    void HandleAccept(TCPConnection::pointer new_connection,
-                        const asio::error_code& error);
+    void HandleAccept(const asio::error_code& error);
 };
 
 #endif //ASIO_TEST_SERVER_2_TCPSERVER_H

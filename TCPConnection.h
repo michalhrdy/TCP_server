@@ -15,16 +15,11 @@
 using asio::ip::tcp;
 
 //Handles communication with TCPClient declared in TCPClient.h
-class TCPConnection
-        : public std::enable_shared_from_this<TCPConnection> {
+class TCPConnection {
 public:
     TCPConnection(asio::io_context& io_context);
     ~TCPConnection();
 
-    typedef std::shared_ptr<TCPConnection> pointer;
-
-    //Creates shared_ptr to this class
-    static pointer Create(asio::io_context& io_context);
     //
     tcp::socket& Socket();
     //Starts work loop of the connection
