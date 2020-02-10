@@ -27,6 +27,7 @@ private:
     tcp::acceptor acceptor_;
 
     std::vector<std::unique_ptr<TCPConnection>> connections_;
+
     void StartAccept();
     //Starts work on newly created connection and calls StartAccept()
     void HandleAccept(const asio::error_code& error);

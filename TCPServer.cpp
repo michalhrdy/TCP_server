@@ -16,7 +16,7 @@ void TCPServer::StartAccept() {
 
 
     connections_.push_back(
-            std::make_unique<TCPConnection>(acceptor_.get_executor().context()));
+            std::make_unique<TCPConnection>(acceptor_.get_executor().context(), this));
 
     acceptor_.async_accept(connections_.back()->Socket(),
                            std::bind(&TCPServer::HandleAccept, this,

@@ -14,10 +14,12 @@
 
 using asio::ip::tcp;
 
+class TCPServer;
+
 //Handles communication with TCPClient declared in TCPClient.h
 class TCPConnection {
 public:
-    TCPConnection(asio::io_context& io_context);
+    TCPConnection(asio::io_context& io_context, TCPServer* server);
     ~TCPConnection();
 
     //
@@ -26,8 +28,9 @@ public:
     void Start();
 
 private:
+    TCPServer* server_;
+    //
     tcp::socket socket_;
-
     //Incoming data buffer
     asio::streambuf recieved_message_buffer_;
     //Outgoing data
