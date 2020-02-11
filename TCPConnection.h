@@ -19,7 +19,7 @@ class TCPServer;
 //Handles communication with TCPClient declared in TCPClient.h
 class TCPConnection {
 public:
-    TCPConnection(asio::io_context& io_context, TCPServer* server);
+    TCPConnection(asio::io_context& io_context);
     ~TCPConnection();
 
     //
@@ -28,7 +28,6 @@ public:
     void Start();
 
 private:
-    TCPServer* server_;
     //
     tcp::socket socket_;
     //Incoming data buffer

@@ -11,23 +11,29 @@ TCPServer::TCPServer(asio::io_context& io_context):
 
 
 void TCPServer::StartAccept() {
-//    TCPConnection::pointer new_connection =
-//            TCPConnection::Create(acceptor_.get_executor().context());
 
+    for(auto it = connections_.begin(); it != connections_.end(); ++it) {
 
-    connections_.push_back(
-            std::make_unique<TCPConnection>(acceptor_.get_executor().context(), this));
+        if(it->get() == nullptr) {
+            *it = std::make_unique<TCPConnection>(acceptor_.get_executor().context());
 
-    acceptor_.async_accept(connections_.back()->Socket(),
-                           std::bind(&TCPServer::HandleAccept, this,
-                                     std::placeholders::_1));
+            acceptor_.async_accept(it->get()->Socket(),
+                    std::bind(&TCPServer::HandleAccept,this,
+                            it,
+                            std::placeholders::_1));
+            break;
+        }
+    }
+    //TODO handle if there are no free slots
 }
 
-void TCPServer::HandleAccept(const asio::error_code& error) {
+void TCPServer::HandleAccept(connections_iterator new_connection, const asio::error_code& error) {
     if (!error) {
-        connections_.back().get()->Start();
+        new_connection->get()->Start();
         std::cout << "New Connection Established" << std::endl;
+    } else {
+        std::cout << error.message() << std::endl;
+        new_connection->reset();
     }
-
     StartAccept();
 }

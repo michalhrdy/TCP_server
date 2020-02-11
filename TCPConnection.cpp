@@ -5,12 +5,13 @@
 #include <connection_globals.h>
 #include "TCPConnection.h"
 
-TCPConnection::TCPConnection(asio::io_context& io_context, TCPServer* server)
-                            : socket_(io_context),
-                            server_(server){
+TCPConnection::TCPConnection(asio::io_context& io_context)
+                            : socket_(io_context) {
 }
 
 TCPConnection::~TCPConnection() {
+    socket_.shutdown(asio::ip::tcp::socket::shutdown_both);
+    socket_.close();
     std::cout << std::endl << "Connection Destructor" << std::endl;
 }
 
