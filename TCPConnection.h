@@ -27,7 +27,6 @@ public:
     //Starts work loop of the connection
     void Start();
 
-private:
     //
     tcp::socket socket_;
     //Incoming data buffer
@@ -35,6 +34,7 @@ private:
     //Outgoing data
     std::string message_to_send_;
 
+private:
     //Asynchronously writes data to socket_
     void Write();
     //Write handler - Calls Read() after Write() finished writing to socket_
